@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海娘フィッシング☆アドベンチャー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #4A90E2 40%, #1E3A8A 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Game Title */
+        .game-title {
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin: 20px 0;
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Character Selection */
+        .character-select {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .character-select h2 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .character-option {
+            padding: 15px;
+            border: 3px solid #4A90E2;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .character-option:hover {
+            transform: scale(1.1);
+            border-color: #FF6B6B;
+            background: #FFF9E6;
+        }
+
+        .character-option .emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .character-option .name {
+            font-size: 0.9rem;
+            color: #2C3E50;
+            font-weight: bold;
+        }
+
+        .character-option .ability {
+            font-size: 0.75rem;
+            color: #7F8C8D;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Game Container */
+        .game-container {
+            width: 900px;
+            height: 600px;
+            position: relative;
+            background: linear-gradient(to bottom, 
+                rgba(135, 206, 235, 0.3) 0%, 
+                rgba(30, 58, 138, 0.4) 100%);
+            border: 5px solid #2C3E50;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Ocean Layers */
+        .ocean {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .water-surface {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to bottom, 
+                rgba(255,255,255,0.8) 0%, 
+                rgba(135,206,235,0.6) 100%);
+            z-index: 10;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 20px;
+            background: rgba(255,255,255,0.4);
+            top: 60px;
+            animation: wave 3s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Character */
+        .character {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 60px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+            transition: left 0.3s ease;
+        }
+
+        .character-name-display {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2C3E50;
+            z-index: 21;
+        }
+
+        /* Fishing Line */
+        .fishing-line {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, #8B4513, #D2691E);
+            left: 50%;
+            top: 70px;
+            transform-origin: top;
+            transform: translateX(-50%);
+            z-index: 15;
+            transition: height 0.3s ease;
+        }
+
+        .hook {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #C0C0C0, #808080);
+            border-radius: 50% 50% 50% 0;
+            transform: translateX(-50%) rotate(45deg);
+        }
+
+        /* Fish */
+        .fish {
+            position: absolute;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+            z-index: 5;
+        }
+
+        .fish.swimming {
+            animation: swim 8s linear infinite;
+        }
+
+        @keyframes swim {
+            0% { transform: translateX(-100px) scaleX(-1); }
+            49% { transform: translateX(950px) scaleX(-1); }
+            50% { transform: translateX(950px) scaleX(1); }
+            99% { transform: translateX(-100px) scaleX(1); }
+            100% { transform: translateX(-100px) scaleX(-1); }
+        }
+
+        .fish.caught {
+            animation: caught 1s ease-out forwards;
+        }
+
+        @keyframes caught {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.5) rotate(180deg); }
+            100% { 
+                transform: scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .fish.rare {
+            filter: drop-shadow(0 0 10px gold);
+        }
+
+        .fish.legendary {
+            filter: drop-shadow(0 0 20px #FF00FF);
+            animation: shimmer 2s infinite, swim 8s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { filter: drop-shadow(0 0 20px #FF00FF); }
+            50% { filter: drop-shadow(0 0 30px #00FFFF); }
+        }
+
+        /* UI Elements */
+        .game-ui {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .score-board, .timer, .combo-meter {
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .score-board {
+            color: #27AE60;
+            font-size: 1.2rem;
+        }
+
+        .timer {
+            color: #E74C3C;
+            font-size: 1.2rem;
+        }
+
+        .combo-meter {
+            color: #F39C12;
+            font-size: 1.1rem;
+        }
+
+        .combo-meter.active {
+            animation: comboPulse 0.5s;
+        }
+
+        @keyframes comboPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Power-up */
+        .powerup {
+            position: absolute;
+            font-size: 35px;
+            animation: powerupFloat 10s linear;
+            cursor: pointer;
+            z-index: 8;
+            filter: drop-shadow(0 0 15px rgba(255,215,0,0.8));
+        }
+
+        @keyframes powerupFloat {
+            0% { 
+                transform: translateY(600px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Special Effects */
+        .catch-effect {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: catchPop 1s ease-out forwards;
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        @keyframes catchPop {
+            0% { 
+                transform: scale(0) translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) translateY(-30px);
+            }
+            100% { 
+                transform: scale(1) translateY(-60px);
+                opacity: 0;
+            }
+        }
+
+        /* Game Over Screen */
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-over h2 {
+            font-size: 2.5rem;
+            color: #2C3E50;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            color: #27AE60;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .catch-summary {
+            margin: 20px 0;
+            text-align: left;
+            background: rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .catch-summary div {
+            margin: 5px 0;
+            font-size: 1.1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, #27AE60, #2ECC71);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(46,204,113,0.4);
+        }
+
+        .btn-restart {
+            background: linear-gradient(45deg, #3498DB, #2980B9);
+            color: white;
+        }
+
+        .btn-restart:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(52,152,219,0.4);
+        }
+
+        /* Instructions */
+        .instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #2C3E50;
+            z-index: 50;
+        }
+
+        /* Bubbles */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(135,206,235,0.4));
+            animation: bubbleRise 8s infinite;
+            z-index: 2;
+        }
+
+        @keyframes bubbleRise {
+            0% {
+                transform: translateY(600px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                transform: translateY(550px) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 950px) {
+            .game-container {
+                width: 95vw;
+                height: 70vh;
+            }
+            .game-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="game-title">🐟 海娘フィッシング☆アドベンチャー 🎣</h1>
+
+    <!-- Character Selection Screen -->
+    <div id="characterSelect" class="character-select">
+        <h2>キャラクターを選んでね！</h2>
+        <div class="character-grid">
+            <div class="character-option" data-character="crab" data-emoji="🦀" data-name="ハサミ">
+                <span class="emoji">🦀</span>
+                <div class="name">蟹沢ハサミ</div>
+                <div class="ability">スコア +20%</div>
+            </div>
+            <div class="character-option" data-character="octopus" data-emoji="🐙" data-name="スミレ">
+                <span class="emoji">🐙</span>
+                <div class="name">蛸田スミレ</div>
+                <div class="ability">8本同時釣り</div>
+            </div>
+            <div class="character-option" data-character="watermelon" data-emoji="🍉" data-name="ナツミ">
+                <span class="emoji">🍉</span>
+                <div class="name">スイカ野ナツミ</div>
+                <div class="ability">時間 +10秒</div>
+            </div>
+            <div class="character-option" data-character="jellyfish" data-emoji="🪼" data-name="ヒカリ">
+                <span class="emoji">🪼</span>
+                <div class="name">海月ヒカリ</div>
+                <div class="ability">魚が光る</div>
+            </div>
+            <div class="character-option" data-character="shark" data-emoji="🦈" data-name="サヤ">
+                <span class="emoji">🦈</span>
+                <div class="name">鮫島サヤ</div>
+                <div class="ability">大物確率UP</div>
+            </div>
+            <div class="character-option" data-character="shrimp" data-emoji="🦐" data-name="ピンク">
+                <span class="emoji">🦐</span>
+                <div class="name">海老沢ピンク</div>
+                <div class="ability">コンボ×2</div>
+            </div>
+            <div class="character-option" data-character="urchin" data-emoji="🦔" data-name="トゲトゲ">
+                <span class="emoji">🦔</span>
+                <div class="name">海胆田トゲトゲ</div>
+                <div class="ability">自動収集</div>
+            </div>
+            <div class="character-option" data-character="all" data-emoji="🌊" data-name="みんな">
+                <span class="emoji">🌊</span>
+                <div class="name">全員で釣り</div>
+                <div class="ability">カオスモード</div>
+            </div>
+        </div>
+        <button class="btn btn-start" onclick="startGame()">ゲームスタート！</button>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container hidden" id="gameContainer">
+        <div class="ocean">
+            <div class="water-surface">
+                <div class="wave"></div>
+            </div>
+        </div>
+        
+        <div class="character" id="character">🦀</div>
+        <div class="character-name-display" id="characterName">ハサミ</div>
+        <div class="fishing-line" id="fishingLine">
+            <div class="hook"></div>
+        </div>
+
+        <div class="game-ui">
+            <div class="score-board">スコア: <span id="score">0</span></div>
+            <div class="combo-meter">コンボ: <span id="combo">0</span>x</div>
+            <div class="timer">残り時間: <span id="timer">60</span>秒</div>
+        </div>
+
+        <div class="instructions">
+            マウスを動かして釣り糸を操作！魚をクリックして釣り上げよう！
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOver" class="game-over hidden">
+        <h2>🎊 ゲーム終了！ 🎊</h2>
+        <div class="final-score">最終スコア: <span id="finalScore">0</span></div>
+        <div class="catch-summary">
+            <div>🐟 普通の魚: <span id="normalFish">0</span>匹</div>
+            <div>🐠 レアな魚: <span id="rareFish">0</span>匹</div>
+            <div>🐡 伝説の魚: <span id="legendaryFish">0</span>匹</div>
+            <div>⭐ 最大コンボ: <span id="maxCombo">0</span></div>
+        </div>
+        <button class="btn btn-restart" onclick="resetGame()">もう一度プレイ</button>
+    </div>
+
+    <script>
+        // Game Variables
+        let score = 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let timeLeft = 60;
+        let gameActive = false;
+        let selectedCharacter = null;
+        let characterBonus = {};
+        let fishCounts = { normal: 0, rare: 0, legendary: 0 };
+        let gameInterval;
+        let fishSpawnInterval;
+        let powerupInterval;
+        let bubbleInterval;
+
+        // Character abilities
+        const characterAbilities = {
+            crab: { scoreMultiplier: 1.2, name: 'ハサミ' },
+            octopus: { multiCatch: true, name: 'スミレ' },
+            watermelon: { extraTime: 10, name: 'ナツミ' },
+            jellyfish: { glowFish: true, name: 'ヒカリ' },
+            shark: { rareFishBoost: 2, name: 'サヤ' },
+            shrimp: { comboMultiplier: 2, name: 'ピンク' },
+            urchin: { autoCatch: true, name: 'トゲトゲ' },
+            all: { chaosMode: true, name: 'みんな' }
+        };
+
+        // Fish types
+        const fishTypes = [
+            { emoji: '🐟', points: 10, rarity: 'normal', speed: 8 },
+            { emoji: '🐠', points: 20, rarity: 'normal', speed: 10 },
+            { emoji: '🐡', points: 30, rarity: 'rare', speed: 12 },
+            { emoji: '🦑', points: 50, rarity: 'rare', speed: 6 },
+            { emoji: '🐚', points: 15, rarity: 'normal', speed: 4 },
+            { emoji: '🦞', points: 40, rarity: 'rare', speed: 7 },
+            { emoji: '🦈', points: 100, rarity: 'legendary', speed: 15 },
+            { emoji: '🐋', points: 200, rarity: 'legendary', speed: 3 },
+            { emoji: '🐙', points: 60, rarity: 'rare', speed: 9 },
+            { emoji: '🦀', points: 25, rarity: 'normal', speed: 5 }
+        ];
+
+        // Character selection
+        document.querySelectorAll('.character-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.character-option').forEach(opt => 
+                    opt.style.border = '3px solid #4A90E2'
+                );
+                this.style.border = '3px solid #FF6B6B';
+                selectedCharacter = {
+                    type: this.dataset.character,
+                    emoji: this.dataset.emoji,
+                    name: this.dataset.name
+                };
+            });
+        });
+
+        // Start game
+        function startGame() {
+            if (!selectedCharacter) {
+                alert('キャラクターを選んでください！');
+                return;
+            }
+
+            // Hide character selection
+            document.getElementById('characterSelect').classList.add('hidden');
+            document.getElementById('gameContainer').classList.remove('hidden');
+
+            // Set character
+            document.getElementById('character').textContent = selectedCharacter.emoji;
+            document.getElementById('characterName').textContent = selectedCharacter.name;
+            
+            // Apply character abilities
+            characterBonus = characterAbilities[selectedCharacter.type];
+            if (characterBonus.extraTime) {
+                timeLeft += characterBonus.extraTime;
+                document.getElementById('timer').textContent = timeLeft;
+            }
+
+            // Start game
+            gameActive = true;
+            startGameLoop();
+            
+            // Mouse movement
+            document.addEventListener('mousemove', moveFishingLine);
+        }
+
+        // Move fishing line with mouse
+        function moveFishingLine(e) {
+            if (!gameActive) return;
+            
+            const gameContainer = document.getElementById('gameContainer');
+            const rect = gameContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            
+            const character = document.getElementById('character');
+            const fishingLine = document.getElementById('fishingLine');
+            
+            // Limit movement within game bounds
+            const limitedX = Math.max(30, Math.min(x, rect.width - 30));
+            
+            character.style.left = limitedX + 'px';
+            fishingLine.style.left = limitedX + 'px';
+            
+            // Adjust line length based on mouse Y position
+            const y = e.clientY - rect.top;
+            const lineHeight = Math.max(100, Math.min(y - 70, 500));
+            fishingLine.style.height = lineHeight + 'px';
+        }
+
+        // Start game loop
+        function startGameLoop() {
+            // Timer
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+                
+                if (timeLeft === 10) {
+                    document.querySelector('.timer').style.animation = 'pulse 1s infinite';
+                }
+            }, 1000);
+
+            // Spawn fish
+            spawnFish();
+            fishSpawnInterval = setInterval(spawnFish, 2000);
+
+            // Spawn powerups
+            powerupInterval = setInterval(spawnPowerup, 8000);
+
+            // Create bubbles
+            createBubbles();
+            bubbleInterval = setInterval(createBubbles, 3000);
+
+            // Auto-catch for urchin character
+            if (characterBonus.autoCatch) {
+                setInterval(autoCatchFish, 1500);
+            }
+        }
+
+        // Spawn fish
+        function spawnFish() {
+            if (!gameActive) return;
+
+            const fishCount = characterBonus.chaosMode ? 3 : 1;
+            
+            for (let i = 0; i < fishCount; i++) {
+                setTimeout(() => {
+                    let fishType;
+                    const rand = Math.random();
+                    
+                    // Adjust spawn rates based on character
+                    const rareBoost = characterBonus.rareFishBoost || 1;
+                    
+                    if (rand < 0.05 * rareBoost) {
+                        fishType = fishTypes.filter(f => f.rarity === 'legendary')[Math.floor(Math.random() * 2)];
+                    } else if (rand < 0.25 * rareBoost) {
+                        const rareFish = fishTypes.filter(f => f.rarity === 'rare');
+                        fishType = rareFish[Math.floor(Math.random() * rareFish.length)];
+                    } else {
+                        const normalFish = fishTypes.filter(f => f.rarity === 'normal');
+                        fishType = normalFish[Math.floor(Math.random() * normalFish.length)];
+                    }
+
+                    const fish = document.createElement('div');
+                    fish.className = `fish swimming ${fishType.rarity}`;
+                    fish.textContent = fishType.emoji;
+                    fish.dataset.points = fishType.points;
+                    fish.dataset.rarity = fishType.rarity;
+                    
+                    // Random depth
+                    const depth = 150 + Math.random() * 400;
+                    fish.style.top = depth + 'px';
+                    
+                    // Random starting position
+                    fish.style.left = Math.random() < 0.5 ? '-100px' : '950px';
+                    
+                    // Animation speed
+                    fish.style.animationDuration = fishType.speed + 's';
+                    
+                    // Glow effect for jellyfish character
+                    if (characterBonus.glowFish) {
+                        fish.style.filter = 'drop-shadow(0 0 10px cyan)';
+                    }
+                    
+                    // Click handler
+                    fish.addEventListener('click', () => catchFish(fish));
+                    
+                    document.getElementById('gameContainer').appendChild(fish);
+                    
+                    // Remove fish after animation
+                    setTimeout(() => {
+                        if (fish.parentElement) {
+                            fish.remove();
+                        }
+                    }, fishType.speed * 1000);
+                }, i * 200);
+            }
+        }
+
+        // Catch fish
+        function catchFish(fish) {
+            if (!gameActive || fish.classList.contains('caught')) return;
+
+            fish.classList.add('caught');
+            
+            const points = parseInt(fish.dataset.points);
+            const rarity = fish.dataset.rarity;
+            
+            // Update fish count
+            if (rarity === 'legendary') fishCounts.legendary++;
+            else if (rarity === 'rare') fishCounts.rare++;
+            else fishCounts.normal++;
+            
+            // Calculate score with bonuses
+            let earnedPoints = points;
+            if (characterBonus.scoreMultiplier) {
+                earnedPoints = Math.floor(earnedPoints * characterBonus.scoreMultiplier);
+            }
+            
+            // Combo system
+            combo++;
+            if (characterBonus.comboMultiplier) {
+                combo *= characterBonus.comboMultiplier;
+            }
+            
+            if (combo > maxCombo) maxCombo = combo;
+            
+            earnedPoints += combo * 5;
+            score += earnedPoints;
+            
+            updateUI();
+            
+            // Show catch effect
+            showCatchEffect(fish, earnedPoints, rarity);
+            
+            // Multi-catch for octopus
+            if (characterBonus.multiCatch) {
+                const nearbyFish = document.querySelectorAll('.fish.swimming');
+                nearbyFish.forEach(f => {
+                    if (f !== fish && !f.classList.contains('caught')) {
+                        const distance = Math.abs(f.offsetLeft - fish.offsetLeft);
+                        if (distance < 100) {
+                            setTimeout(() => catchFish(f), 100);
+                        }
+                    }
+                });
+            }
+            
+            // Reset combo after delay
+            clearTimeout(window.comboTimeout);
+            window.comboTimeout = setTimeout(() => {
+                combo = 0;
+                updateUI();
+            }, 2000);
+        }
+
+        // Auto-catch for urchin character
+        function autoCatchFish() {
+            if (!gameActive) return;
+            
+            const allFish = document.querySelectorAll('.fish.swimming');
+            if (allFish.length > 0) {
+                const randomFish = allFish[Math.floor(Math.random() * allFish.length)];
+                catchFish(randomFish);
+            }
+        }
+
+        // Show catch effect
+        function showCatchEffect(fish, points, rarity) {
+            const effect = document.createElement('div');
+            effect.className = 'catch-effect';
+            
+            let message = `+${points}`;
+            if (rarity === 'legendary') {
+                message = `伝説！ +${points}`;
+                effect.style.color = '#FF00FF';
+            } else if (rarity === 'rare') {
+                message = `レア！ +${points}`;
+                effect.style.color = '#FFD700';
+            }
+            
+            if (combo > 5) {
+                message += ` コンボ×${combo}!`;
+            }
+            
+            effect.textContent = message;
+            effect.style.left = fish.offsetLeft + 'px';
+            effect.style.top = fish.offsetTop + 'px';
+            
+            document.getElementById('gameContainer').appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        // Spawn powerup
+        function spawnPowerup() {
+            if (!gameActive) return;
+            
+            const powerups = ['⭐', '💎', '🎁', '⚡'];
+            const powerup = document.createElement('div');
+            powerup.className = 'powerup';
+            powerup.textContent = powerups[Math.floor(Math.random() * powerups.length)];
+            powerup.style.left = Math.random() * 850 + 'px';
+            
+            powerup.addEventListener('click', () => {
+                powerup.remove();
+                
+                // Random bonus
+                const bonusType = Math.random();
+                if (bonusType < 0.3) {
+                    score += 100;
+                    showCatchEffect(powerup, 100, 'rare');
+                } else if (bonusType < 0.6) {
+                    timeLeft += 5;
+                    showMessage('+5秒！');
+                } else {
+                    combo += 10;
+                    showMessage('コンボ+10！');
+                }
+                
+                updateUI();
+            });
+            
+            document.getElementById('gameContainer').appendChild(powerup);
+            
+            setTimeout(() => {
+                if (powerup.parentElement) powerup.remove();
+            }, 10000);
+        }
+
+        // Create bubbles
+        function createBubbles() {
+            if (!gameActive) return;
+            
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    
+                    const size = Math.random() * 20 + 10;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                    bubble.style.left = Math.random() * 900 + 'px';
+                    bubble.style.animationDelay = Math.random() * 2 + 's';
+                    bubble.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    
+                    document.getElementById('gameContainer').appendChild(bubble);
+                    
+                    setTimeout(() => bubble.remove(), 10000);
+                }, i * 300);
+            }
+        }
+
+        // Show message
+        function showMessage(text) {
+            const msg = document.createElement('div');
+            msg.className = 'catch-effect';
+            msg.textContent = text;
+            msg.style.left = '450px';
+            msg.style.top = '300px';
+            msg.style.fontSize = '2.5rem';
+            msg.style.color = '#00FF00';
+            
+            document.getElementById('gameContainer').appendChild(msg);
+            setTimeout(() => msg.remove(), 1500);
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('combo').textContent = combo;
+            
+            const comboMeter = document.querySelector('.combo-meter');
+            if (combo > 0) {
+                comboMeter.classList.add('active');
+                setTimeout(() => comboMeter.classList.remove('active'), 500);
+            }
+        }
+
+        // End game
+        function endGame() {
+            gameActive = false;
+            
+            // Clear intervals
+            clearInterval(gameInterval);
+            clearInterval(fishSpawnInterval);
+            clearInterval(powerupInterval);
+            clearInterval(bubbleInterval);
+            
+            // Remove event listener
+            document.removeEventListener('mousemove', moveFishingLine);
+            
+            // Show game over screen
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('normalFish').textContent = fishCounts.normal;
+            document.getElementById('rareFish').textContent = fishCounts.rare;
+            document.getElementById('legendaryFish').textContent = fishCounts.legendary;
+            document.getElementById('maxCombo').textContent = maxCombo;
+            
+            setTimeout(() => {
+                document.getElementById('gameContainer').classList.add('hidden');
+                document.getElementById('gameOver').classList.remove('hidden');
+            }, 1000);
+        }
+
+        // Reset game
+        function resetGame() {
+            // Reset variables
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            timeLeft = 60;
+            fishCounts = { normal: 0, rare: 0, legendary: 0 };
+            selectedCharacter = null;
+            characterBonus = {};
+            
+            // Clear game container
+            const gameContainer = document.getElementById('gameContainer');
+            const fishElements = gameContainer.querySelectorAll('.fish, .powerup, .bubble, .catch-effect');
+            fishElements.forEach(el => el.remove());
+            
+            // Reset UI
+            updateUI();
+            document.getElementById('timer').textContent = timeLeft;
+            document.querySelector('.timer').style.animation = '';
+            
+            // Reset character selection
+            document.querySelectorAll('.character-option').forEach(opt => 
+                opt.style.border = '3px solid #4A90E2'
+            );
+            
+            // Show character selection
+            document.getElementById('gameOver').classList.add('hidden');
+            document.getElementById('characterSelect').classList.remove('hidden');
+        }
+
+        // Initialize
+        window.onload = function() {
+            // Prevent right-click context menu in game
+            document.getElementById('gameContainer').addEventListener('contextmenu', e => e.preventDefault());
+        };
+    </script>
+</body>
+</html>

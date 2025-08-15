@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>劇場版 海娘☆アクアドリーム ～奇跡の深海大冒険～</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic Pro', 'メイリオ', Meiryo, sans-serif;
+            background: linear-gradient(180deg, #001a33 0%, #003d7a 50%, #0066cc 100%);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ocean Wave Animation Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%230099ff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,154.7C384,149,480,107,576,90.7C672,75,768,85,864,106.7C960,128,1056,160,1152,154.7C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            animation: wave 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(0, 150, 255, 0.3) 0%, transparent 70%);
+        }
+
+        .movie-logo {
+            animation: glow 2s ease-in-out infinite alternate;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.5)); }
+            to { filter: drop-shadow(0 0 40px rgba(0, 200, 255, 0.9)); }
+        }
+
+        .main-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ffff, #0099ff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 200, 255, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .release-date {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff6b6b, #ff9999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #ffffff;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 0;
+            transition: all 0.3s;
+        }
+
+        nav.scrolled {
+            background: rgba(0, 20, 40, 0.98);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            color: #00ffff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, #0099ff);
+            transition: width 0.3s;
+        }
+
+        .nav-item:hover::after {
+            width: 100%;
+        }
+
+        /* Info Sections */
+        section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(45deg, #00ffff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        }
+
+        /* Story Section */
+        .story-container {
+            background: rgba(0, 50, 100, 0.3);
+            border: 2px solid rgba(0, 200, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 200, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .story-text {
+            font-size: 1.2rem;
+            line-height: 2;
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Characters Grid */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .character-card {
+            background: linear-gradient(135deg, rgba(0, 100, 200, 0.3), rgba(0, 50, 100, 0.5));
+            border: 2px solid rgba(0, 200, 255, 0.5);
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            transition: all 0.5s;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: #00ffff;
+            box-shadow: 0 10px 30px rgba(0, 200, 255, 0.4);
+        }
+
+        .character-card:hover::before {
+            top: -50%;
+            left: -50%;
+        }
+
+        .character-emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .character-name {
+            font-size: 1.3rem;
+            color: #00ffff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .character-type {
+            font-size: 0.9rem;
+            color: #aaddff;
+            margin-bottom: 15px;
+        }
+
+        .character-description {
+            font-size: 0.85rem;
+            color: #ffffff;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* Movie Info Stats */
+        .movie-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .stat-card {
+            background: rgba(0, 50, 100, 0.4);
+            border-left: 4px solid #00ffff;
+            padding: 25px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(0, 70, 140, 0.5);
+            transform: translateX(10px);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Special Features */
+        .features-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .feature-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ff9999);
+            color: #ffffff;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            animation: badge-float 3s ease-in-out infinite;
+        }
+
+        @keyframes badge-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(180deg, rgba(0, 20, 40, 0.8), #000);
+            padding: 50px 20px;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .social-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: rgba(0, 150, 255, 0.2);
+            border: 2px solid #00ffff;
+            border-radius: 50px;
+            color: #00ffff;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .social-link:hover {
+            background: rgba(0, 150, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 200, 255, 0.5);
+        }
+
+        .copyright {
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            padding: 20px 50px;
+            background: linear-gradient(45deg, #00ffff, #0099ff);
+            color: #001a33;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 200, 255, 0.4);
+            animation: cta-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes cta-glow {
+            0%, 100% { box-shadow: 0 5px 20px rgba(0, 200, 255, 0.4); }
+            50% { box-shadow: 0 5px 30px rgba(0, 200, 255, 0.8); }
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.05);
+        }
+        
+        /* Hero Images */
+        .hero-images {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+        
+        .hero-images img {
+            width: 250px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            border: 3px solid rgba(0, 200, 255, 0.5);
+        }
+        
+        .hero-images img:hover {
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 200, 255, 0.6);
+            border-color: #00ffff;
+        }
+        
+        .hero-poster {
+            animation: floatPoster 4s ease-in-out infinite;
+        }
+        
+        .hero-characters {
+            animation: floatPoster 4s ease-in-out infinite 0.5s;
+        }
+        
+        .hero-underwater {
+            animation: floatPoster 4s ease-in-out infinite 1s;
+        }
+        
+        @keyframes floatPoster {
+            0%, 100% { transform: translateY(0) rotate(-1deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+        
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 20, 40, 0.95);
+            padding: 15px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 200, 255, 0.5);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .music-player:hover {
+            border-color: #00ffff;
+            box-shadow: 0 5px 30px rgba(0, 200, 255, 0.5);
+        }
+        
+        .music-control {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ffff, #0099ff);
+            border: none;
+            color: #001a33;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .music-control:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 5px 15px rgba(0, 200, 255, 0.5);
+        }
+        
+        .music-info {
+            color: #00ffff;
+            font-size: 0.9rem;
+            max-width: 200px;
+        }
+        
+        .music-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .music-status {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        @keyframes musicPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .music-player.playing .music-control {
+            animation: musicPulse 1s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2rem; }
+            .subtitle { font-size: 1.2rem; }
+            .section-title { font-size: 2rem; }
+            .characters-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .nav-container { gap: 15px; flex-wrap: wrap; }
+            .nav-item { font-size: 0.9rem; }
+            .hero-images img { width: 150px; height: 200px; }
+            .music-player { bottom: 10px; right: 10px; padding: 10px; }
+            .music-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer">
+        <button class="music-control" id="playButton" onclick="toggleMusic()">▶</button>
+        <div class="music-info">
+            <div class="music-title">海娘☆アクアドリーム</div>
+            <div class="music-status" id="musicStatus">主題歌</div>
+        </div>
+        <audio id="bgMusic" loop>
+            <source src="song.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-item">HOME</a>
+            <a href="#story" class="nav-item">STORY</a>
+            <a href="#characters" class="nav-item">CHARACTERS</a>
+            <a href="#info" class="nav-item">MOVIE INFO</a>
+            <a href="#special" class="nav-item">SPECIAL</a>
+            <a href="#game" class="nav-item">🎮 GAME</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="movie-logo">
+            <h1 class="main-title">劇場版 海娘☆アクアドリーム</h1>
+            <h2 class="subtitle">～奇跡の深海大冒険～</h2>
+        </div>
+        <div class="release-date">2024年7月20日 全国ロードショー</div>
+        <p class="tagline">
+            七つの海を越えて、真の友情が輝く―<br>
+            潮風学園の海娘たちが贈る、この夏最高の感動超大作！
+        </p>
+        <a href="#ticket" class="cta-button">チケット予約はこちら</a>
+        
+        <!-- Hero Images -->
+        <div class="hero-images">
+            <img src="kanimusume.png" alt="蟹沢ハサミ" class="hero-poster">
+            <img src="takomusume.png" alt="蛸田スミレ" class="hero-characters">
+            <img src="suikamusume.png" alt="スイカ野ナツミ" class="hero-underwater">
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section id="story">
+        <h2 class="section-title">STORY</h2>
+        <div class="story-container">
+            <p class="story-text">
+                潮風学園に通う海娘たちに、突如として深海からのSOS信号が届く。<br><br>
+                
+                伝説の深海都市「アトランティア」が謎の闇に包まれ、海の生態系が崩壊の危機に瀕していた。
+                ハサミたち海娘同好会のメンバーは、海を救うため、そして新たな仲間を助けるため、
+                未知なる深海への大冒険に挑む！<br><br>
+                
+                しかし、そこで待ち受けていたのは、想像を超える試練と、
+                海娘たちの絆を試す究極の選択だった―<br><br>
+                
+                果たして彼女たちは、海の平和を取り戻すことができるのか？<br>
+                そして、深海に隠された驚きの真実とは...？
+            </p>
+        </div>
+    </section>
+
+    <!-- Characters Section -->
+    <section id="characters">
+        <h2 class="section-title">CHARACTERS</h2>
+        <div class="characters-grid">
+            <div class="character-card">
+                <img src="kanimusume.png" alt="蟹沢ハサミ" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
+                <div class="character-emoji">🦀</div>
+                <div class="character-name">蟹沢ハサミ</div>
+                <div class="character-type">ズワイガニの海娘</div>
+                <div class="character-description">
+                    明るく前向きな主人公。<br>
+                    強力なハサミと固い甲羅で仲間を守る！
+                </div>
+            </div>
+            <div class="character-card">
+                <img src="takomusume.png" alt="蛸田スミレ" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
+                <div class="character-emoji">🐙</div>
+                <div class="character-name">蛸田スミレ</div>
+                <div class="character-type">マダコの海娘</div>
+                <div class="character-description">
+                    8本の髪を自在に操る天才少女。<br>
+                    冷静な判断力でチームを導く。
+                </div>
+            </div>
+            <div class="character-card">
+                <img src="suikamusume.png" alt="スイカ野ナツミ" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
+                <div class="character-emoji">🍉</div>
+                <div class="character-name">スイカ野ナツミ</div>
+                <div class="character-type">名誉海娘（スイカ）</div>
+                <div class="character-description">
+                    いつも元気いっぱいのムードメーカー。<br>
+                    夏の海に欠かせない存在！
+                </div>
+            </div>
+            <div class="character-card">
+                <div class="character-emoji">🪼</div>
+                <div class="character-name">海月ヒカリ</div>
+                <div class="character-type">ミズクラゲの海娘</div>
+                <div class="character-description">
+                    神秘的な光を放つ癒し系。<br>
+                    深海でその真価を発揮する！
+                </div>
+            </div>
+            <div class="character-card">
+                <div class="character-emoji">🦈</div>
+                <div class="character-name">鮫島サヤ</div>
+                <div class="character-type">ホオジロザメの海娘</div>
+                <div class="character-description">
+                    クールな生徒会副会長。<br>
+                    実は誰よりも仲間思い。
+                </div>
+            </div>
+            <div class="character-card">
+                <div class="character-emoji">🦐</div>
+                <div class="character-name">海老沢ピンク</div>
+                <div class="character-type">伊勢エビの海娘</div>
+                <div class="character-description">
+                    美しいオレンジ色の殻を持つ新メンバー。<br>
+                    映画で大活躍！
+                </div>
+            </div>
+            <div class="character-card">
+                <div class="character-emoji">🦔</div>
+                <div class="character-name">海胆田トゲトゲ</div>
+                <div class="character-type">ウニの海娘</div>
+                <div class="character-description">
+                    見た目と裏腹に心優しい新メンバー。<br>
+                    秘められた力が覚醒する！
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Movie Info Section -->
+    <section id="info">
+        <h2 class="section-title">MOVIE INFO</h2>
+        <div class="movie-stats">
+            <div class="stat-card">
+                <div class="stat-label">上映時間</div>
+                <div class="stat-value">120分</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">監督</div>
+                <div class="stat-value">海野 波音</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">脚本</div>
+                <div class="stat-value">潮風 まりん</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">音楽</div>
+                <div class="stat-value">深海 奏太</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">制作</div>
+                <div class="stat-value">アクアドリーム製作委員会</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">配給</div>
+                <div class="stat-value">オーシャンピクチャーズ</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Features Section -->
+    <section id="special">
+        <h2 class="section-title">SPECIAL FEATURES</h2>
+        <div class="features-container">
+            <div class="feature-badge">4DX・MX4D上映</div>
+            <div class="feature-badge">IMAX上映</div>
+            <div class="feature-badge">ドルビーアトモス</div>
+            <div class="feature-badge">主題歌：海の歌姫</div>
+            <div class="feature-badge">豪華声優陣</div>
+        </div>
+        <div style="text-align: center; margin-top: 50px;">
+            <h3 style="font-size: 2rem; margin-bottom: 20px; color: #00ffff;">入場者特典</h3>
+            <p style="font-size: 1.2rem; line-height: 1.8;">
+                先着100万名様限定！<br>
+                キラキラ海娘アクリルスタンド全7種ランダム配布<br>
+                さらに！週替わりで特製ポストカードもプレゼント！
+            </p>
+        </div>
+    </section>
+
+    <!-- Game Section -->
+    <section id="game" style="background: linear-gradient(135deg, rgba(0, 100, 200, 0.2), rgba(0, 50, 100, 0.3)); padding: 80px 20px; border-radius: 30px; margin: 50px auto;">
+        <h2 class="section-title">🎮 SPECIAL GAME</h2>
+        <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+            <h3 style="font-size: 2.5rem; color: #00ffff; margin-bottom: 20px; text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);">
+                海娘フィッシング☆アドベンチャー
+            </h3>
+            <p style="font-size: 1.3rem; color: #ffffff; margin-bottom: 30px; line-height: 1.8;">
+                映画公開記念！特別ミニゲーム！<br>
+                海娘たちと一緒に魚を釣って最高スコアを目指そう！<br>
+                各キャラクターの特殊能力を使いこなして、伝説の魚をゲット！
+            </p>
+            
+            <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin: 40px 0;">
+                <div style="background: rgba(0, 50, 100, 0.4); padding: 20px; border-radius: 15px; border-left: 4px solid #FFD700;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
+                    <div style="color: #FFD700; font-size: 1.1rem;">最高スコアに挑戦！</div>
+                </div>
+                <div style="background: rgba(0, 50, 100, 0.4); padding: 20px; border-radius: 15px; border-left: 4px solid #FF69B4;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🎣</div>
+                    <div style="color: #FF69B4; font-size: 1.1rem;">7人のキャラから選択</div>
+                </div>
+                <div style="background: rgba(0, 50, 100, 0.4); padding: 20px; border-radius: 15px; border-left: 4px solid #00CED1;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🐟</div>
+                    <div style="color: #00CED1; font-size: 1.1rem;">レア魚をコレクション</div>
+                </div>
+            </div>
+            
+            <a href="fishing-game.html" target="_blank" style="display: inline-block; padding: 25px 60px; background: linear-gradient(45deg, #FF6B6B, #4ECDC4); color: white; font-size: 1.5rem; font-weight: bold; border-radius: 50px; text-decoration: none; transition: all 0.3s; box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4); animation: gamePulse 2s infinite;">
+                🎮 ゲームをプレイする
+            </a>
+            
+            <div style="margin-top: 30px;">
+                <p style="color: #aaddff; font-size: 1rem;">
+                    ※ ゲームは別ウィンドウで開きます<br>
+                    ※ PC推奨・マウス操作でプレイ
+                </p>
+            </div>
+        </div>
+        
+        <style>
+            @keyframes gamePulse {
+                0%, 100% { 
+                    transform: scale(1); 
+                    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+                }
+                50% { 
+                    transform: scale(1.05); 
+                    box-shadow: 0 15px 40px rgba(78, 205, 196, 0.6);
+                }
+            }
+            
+            #game a:hover {
+                transform: scale(1.1) translateY(-3px);
+                box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+            }
+        </style>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #00ffff;">
+                劇場版 海娘☆アクアドリーム ～奇跡の深海大冒険～
+            </h3>
+            <div class="social-links">
+                <a href="#" class="social-link">公式Twitter</a>
+                <a href="#" class="social-link">公式Instagram</a>
+                <a href="#" class="social-link">公式YouTube</a>
+            </div>
+            <p class="copyright">
+                © 2024 海娘☆アクアドリーム製作委員会 All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Apply observer to all sections
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Initialize particles
+        createParticles();
+        
+        // Music Player Functions
+        let isPlaying = false;
+        const audio = document.getElementById('bgMusic');
+        const playButton = document.getElementById('playButton');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const musicStatus = document.getElementById('musicStatus');
+        
+        function toggleMusic() {
+            if (isPlaying) {
+                audio.pause();
+                playButton.textContent = '▶';
+                musicPlayer.classList.remove('playing');
+                musicStatus.textContent = '一時停止中';
+            } else {
+                audio.play().catch(e => {
+                    console.log('Audio play failed:', e);
+                    // Auto-play might be blocked, user interaction required
+                });
+                playButton.textContent = '❚❚';
+                musicPlayer.classList.add('playing');
+                musicStatus.textContent = '再生中 ♪';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        // Auto-play on first user interaction
+        document.addEventListener('click', function initAudio() {
+            if (!isPlaying && audio.paused) {
+                audio.play().catch(e => console.log('Auto-play prevented'));
+                if (!audio.paused) {
+                    isPlaying = true;
+                    playButton.textContent = '❚❚';
+                    musicPlayer.classList.add('playing');
+                    musicStatus.textContent = '再生中 ♪';
+                }
+            }
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
+
+        // Add sparkle effect on character cards hover
+        document.querySelectorAll('.character-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const emoji = this.querySelector('.character-emoji');
+                emoji.style.transform = 'scale(1.2) rotate(10deg)';
+                emoji.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                const emoji = this.querySelector('.character-emoji');
+                emoji.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+
+        // Dynamic background gradient change based on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = scrolled / maxScroll;
+            
+            const hue = 200 + (scrollPercent * 20);
+            const lightness = 10 + (scrollPercent * 5);
+            
+            document.body.style.background = `linear-gradient(180deg, 
+                hsl(${hue}, 100%, ${lightness}%) 0%, 
+                hsl(${hue + 10}, 100%, ${lightness + 10}%) 50%, 
+                hsl(${hue + 20}, 100%, ${lightness + 20}%) 100%)`;
+        });
+    </script>
+</body>
+</html>
